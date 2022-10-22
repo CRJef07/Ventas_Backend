@@ -25,11 +25,10 @@ public class Tipo_VentaRest {
 
     @GetMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    //public ResponseEntity<Persona> findById(@PathVariable int id)
     public ResponseEntity<Tipo_Venta> findById(@PathVariable int id) {
         Optional<Tipo_Venta> tipo_venta = tipoVentaRepository.findById(id);
-        if (!tipo_venta.isPresent()) {
-            ResponseEntity.badRequest().build();
+        if (tipo_venta.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(tipo_venta.get());
     }
@@ -43,17 +42,17 @@ public class Tipo_VentaRest {
     @PutMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Tipo_Venta> update(@RequestBody Tipo_Venta tipo_venta) {
-        if (!tipoVentaRepository.findById(tipo_venta.getId_tipo_venta()).isPresent()){
-            ResponseEntity.badRequest().build();
+        if (tipoVentaRepository.findById(tipo_venta.getId_tipo_venta()).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(tipoVentaRepository.save(tipo_venta));
     }
 
     @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity delete(@PathVariable int id){
-        if (!tipoVentaRepository.findById(id).isPresent()){
-            ResponseEntity.badRequest().build();
+    public ResponseEntity<Tipo_Venta> delete(@PathVariable int id) {
+        if (tipoVentaRepository.findById(id).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         tipoVentaRepository.delete(tipoVentaRepository.findById(id).get());
         return ResponseEntity.ok().build();

@@ -1,12 +1,8 @@
 package com.una.backend.api;
 
-import com.una.backend.entity.Persona;
 import com.una.backend.entity.Producto;
-import com.una.backend.entity.Tipo_Venta;
 import com.una.backend.entity.Venta;
-import com.una.backend.repository.PersonaRepository;
 import com.una.backend.repository.ProductoRepository;
-import com.una.backend.repository.Tipo_VentaRepository;
 import com.una.backend.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,10 +20,6 @@ public class VentaRest {
     @Autowired
     private VentaRepository ventaRepository;
     @Autowired
-    private Tipo_VentaRepository tipoVentaRepository;
-    @Autowired
-    private PersonaRepository personaRepository;
-    @Autowired
     private ProductoRepository productoRepository;
 
     @GetMapping
@@ -41,8 +33,8 @@ public class VentaRest {
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Venta> findById(@PathVariable int id) {
         Optional<Venta> venta = ventaRepository.findById(id);
-        if (!venta.isPresent()) {
-            ResponseEntity.badRequest().build();
+        if (venta.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(venta.get());
     }
@@ -54,18 +46,23 @@ public class VentaRest {
         //List<Producto> listaProductos = (List<Producto>) productoRepository.findAll();
         //productoRepository.findAll().forEach(producto -> listaProductos.add(producto));
 
-        List<Producto> listaProductos = new ArrayList<Producto>();
+        List<Producto> listaProductos = new ArrayList<>();
         productoRepository.findAll().forEach(listaProductos::add);
 
         for (Producto producto : listaProductos) {
             if (producto.getId_producto() == venta.getProducto().getId_producto()) {
                 venta.setProducto(producto);
+                venta.setFecha(new Date());
                 if (producto.getCantidad() > 0) { //NO SE PUEDE COMPRAR UN PRODUCTO SI NO TIENE EN EXISTENCIA
                     if (producto.getCantidad() - venta.getCantidad() >= 0) { //NO SE PUEDE COMPRAR SI LO QUE SE QUIERE ES MAYOR QUE LA CANTIDAD EXISTENTE
                         producto.setCantidad(producto.getCantidad() - venta.getCantidad());
                         productoRepository.save(producto);
                         return ResponseEntity.ok(ventaRepository.save(venta));
+                    }else{//CUANDO SE QUIERE COMPRAR MÁS DE LA CANTIDAD EXISTENTE
+                        return ResponseEntity.noContent().build();
                     }
+                }else{//CUANDO NO HAY PRODUCTOS CANTIDAD = 0
+                    return ResponseEntity.notFound().build();
                 }
             }
         }
@@ -93,7 +90,7 @@ public class VentaRest {
         //ventaRepository.deleteById(id);
         //return ResponseEntity.ok().build();
 
-        List<Producto> listaProductos = new ArrayList<Producto>();
+        List<Producto> listaProductos = new ArrayList<>();
         productoRepository.findAll().forEach(listaProductos::add);
 
         Venta venta = ventaRepository.findById(id).get();

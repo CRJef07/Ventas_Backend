@@ -12,39 +12,39 @@ import java.util.Date;
 
 @Aspect
 @Component
-public class PersonaAOP {
+public class Tipo_VentaAOP {
     @Autowired
     private LogRepository logRepository;
 
-    @Before("execution (* com.una.backend.repository.PersonaRepository.findAll(..)) ")
+    @Before("execution (* com.una.backend.repository.Tipo_VentaRepository.findAll(..)) ")
     public void logBeforeFindAll(JoinPoint joinPoint) {
         Log log = new Log();
         log.setFecha(new Date());
-        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Persona");
+        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Tipo_Venta");
         logRepository.save(log);
     }
 
-    @Before("execution (* com.una.backend.repository.PersonaRepository.findById(..))")
+    @Before("execution (* com.una.backend.repository.Tipo_VentaRepository.findById(..))")
     public void logBeforeFindById(JoinPoint joinPoint) {
         Log log = new Log();
         log.setFecha(new Date());
-        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Persona");
+        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Tipo_Venta");
         logRepository.save(log);
     }
 
-    @Before("execution (* com.una.backend.repository.PersonaRepository.save(..))")
+    @Before("execution (* com.una.backend.repository.Tipo_VentaRepository.save(..))")
     public void logBeforeSave(JoinPoint joinPoint) {
         Log log = new Log();
         log.setFecha(new Date());
-        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Persona");
+        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Tipo_Venta");
         logRepository.save(log);
     }
 
-    @Before("execution (* com.una.backend.repository.PersonaRepository.delete(..))")
+    @Before("execution (* com.una.backend.repository.Tipo_VentaRepository.delete(..))")
     public void logBeforeDelete(JoinPoint joinPoint) {
         Log log = new Log();
         log.setFecha(new Date());
-        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Persona");
+        log.setDescripcion(joinPoint.getSignature().getName() + " de la tabla Tipo_Venta");
         logRepository.save(log);
     }
 }

@@ -19,40 +19,40 @@ public class ProductoRest {
     @GetMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
     @ResponseStatus(HttpStatus.OK)
-    public List<Producto> findAll(){
+    public List<Producto> findAll() {
         return (List<Producto>) productoRepository.findAll();
     }
 
     @GetMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity<Producto> findById(@PathVariable int id){
+    public ResponseEntity<Producto> findById(@PathVariable int id) {
         Optional<Producto> producto = productoRepository.findById(id);
-        if (!producto.isPresent()){
-            ResponseEntity.badRequest().build();
+        if (producto.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(producto.get());
     }
 
     @PostMapping()
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity<Producto> create (@RequestBody Producto producto){
+    public ResponseEntity<Producto> create(@RequestBody Producto producto) {
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
     @PutMapping()
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity<Producto> update(@RequestBody Producto producto){
-        if (!productoRepository.findById(producto.getId_producto()).isPresent()){
-            ResponseEntity.badRequest().build();
+    public ResponseEntity<Producto> update(@RequestBody Producto producto) {
+        if (productoRepository.findById(producto.getId_producto()).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
     @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity delete(@PathVariable int id) {
-        if (!productoRepository.findById(id).isPresent()) {
-            ResponseEntity.badRequest().build();
+    public ResponseEntity<Producto> delete(@PathVariable int id) {
+        if (productoRepository.findById(id).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         productoRepository.delete(productoRepository.findById(id).get());
         return ResponseEntity.ok().build();

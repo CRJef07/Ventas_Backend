@@ -19,7 +19,7 @@ public class PersonaRest {
     @GetMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
     @ResponseStatus(HttpStatus.OK)
-    public List<Persona> findAll(){
+    public List<Persona> findAll() {
         return (List<Persona>) personaRepository.findAll();
     }
 
@@ -27,8 +27,8 @@ public class PersonaRest {
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Persona> findById(@PathVariable int id) {
         Optional<Persona> persona = personaRepository.findById(id);
-        if (!persona.isPresent()) {
-            ResponseEntity.badRequest().build();
+        if (persona.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(persona.get());
     }
@@ -42,17 +42,17 @@ public class PersonaRest {
     @PutMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Persona> update(@RequestBody Persona persona) {
-        if (!personaRepository.findById(persona.getId_persona()).isPresent()) {
-            ResponseEntity.badRequest().build();
+        if (personaRepository.findById(persona.getId_persona()).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(personaRepository.save(persona));
     }
 
     @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity delete(@PathVariable int id) {
-        if (!personaRepository.findById(id).isPresent()) {
-            ResponseEntity.badRequest().build();
+    public ResponseEntity<Persona> delete(@PathVariable int id) {
+        if (personaRepository.findById(id).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
         personaRepository.delete(personaRepository.findById(id).get());
         return ResponseEntity.ok().build();

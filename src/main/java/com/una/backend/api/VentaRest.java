@@ -43,9 +43,8 @@ public class VentaRest {
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Venta> create(@RequestBody Venta venta) {
 
-        if (venta.getProducto().getCantidad() == 0){
-            //return ResponseEntity.internalServerError().build();
-            return ResponseEntity.status(99).build();
+        if (venta.getCantidad() == 0) {
+            return ResponseEntity.notFound().build();
         }
 
         //List<Producto> listaProductos = (List<Producto>) productoRepository.findAll();
@@ -53,7 +52,6 @@ public class VentaRest {
 
         List<Producto> listaProductos = new ArrayList<>();
         productoRepository.findAll().forEach(listaProductos::add);
-
 
 
         for (Producto producto : listaProductos) {
@@ -65,13 +63,11 @@ public class VentaRest {
                         producto.setCantidad(producto.getCantidad() - venta.getCantidad());
                         productoRepository.save(producto);
                         return ResponseEntity.ok(ventaRepository.save(venta));
-                    }else{//CUANDO SE QUIERE COMPRAR MÁS DE LA CANTIDAD EXISTENTE
-                        //return ResponseEntity.noContent().build();//204
-                        return ResponseEntity.status(98).build();
+                    } else {//CUANDO SE QUIERE COMPRAR MÁS DE LA CANTIDAD EXISTENTE
+                        return ResponseEntity.notFound().build();
                     }
-                }else{//CUANDO NO HAY PRODUCTOS CANTIDAD = 0
-                    //return ResponseEntity.notFound().build(); //404
-                    return ResponseEntity.status(97).build();
+                } else {//CUANDO NO HAY PRODUCTOS CANTIDAD = 0
+                    return ResponseEntity.notFound().build();
                 }
             }
         }

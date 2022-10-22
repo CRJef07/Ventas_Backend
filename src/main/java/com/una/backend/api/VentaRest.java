@@ -1,12 +1,20 @@
 package com.una.backend.api;
 
+import com.una.backend.entity.Persona;
+import com.una.backend.entity.Producto;
+import com.una.backend.entity.Tipo_Venta;
 import com.una.backend.entity.Venta;
+import com.una.backend.repository.PersonaRepository;
+import com.una.backend.repository.ProductoRepository;
+import com.una.backend.repository.Tipo_VentaRepository;
 import com.una.backend.repository.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +23,12 @@ import java.util.Optional;
 public class VentaRest {
     @Autowired
     private VentaRepository ventaRepository;
+    @Autowired
+    private Tipo_VentaRepository tipoVentaRepository;
+    @Autowired
+    private PersonaRepository personaRepository;
+    @Autowired
+    private ProductoRepository productoRepository;
 
     @GetMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
@@ -36,9 +50,29 @@ public class VentaRest {
     @PostMapping()
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Venta> create(@RequestBody Venta venta) {
-        return ResponseEntity.ok(ventaRepository.save(venta));
+
+        //List<Producto> listaProductos = (List<Producto>) productoRepository.findAll();
+        //productoRepository.findAll().forEach(producto -> listaProductos.add(producto));
+
+        List<Producto> listaProductos = new ArrayList<Producto>();
+        productoRepository.findAll().forEach(listaProductos::add);
+
+        for (Producto producto : listaProductos) {
+            if (producto.getId_producto() == venta.getProducto().getId_producto()) {
+                venta.setProducto(producto);
+                if (producto.getCantidad() > 0) { //NO SE PUEDE COMPRAR UN PRODUCTO SI NO TIENE EN EXISTENCIA
+                    if (producto.getCantidad() - venta.getCantidad() >= 0) { //NO SE PUEDE COMPRAR SI LO QUE SE QUIERE ES MAYOR QUE LA CANTIDAD EXISTENTE
+                        producto.setCantidad(producto.getCantidad() - venta.getCantidad());
+                        productoRepository.save(producto);
+                        return ResponseEntity.ok(ventaRepository.save(venta));
+                    }
+                }
+            }
+        }
+        return ResponseEntity.badRequest().build();
     }
 
+    /* VENTAS NO SE EDITAN
     @PutMapping
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Venta> update(@RequestBody Venta venta) {
@@ -46,15 +80,32 @@ public class VentaRest {
             ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(ventaRepository.save(venta));
-    }
+    }*/
 
+    /*CUANDO SE ELIMINA UNA VENTA SE DEVUELVA LA CANTIDAD AL PRODUCTO*/
     @DeleteMapping("/{id}")
     @CrossOrigin(origins = "*", maxAge = 3600)
-    public ResponseEntity delete(@PathVariable int id) {
-        if (!ventaRepository.findById(id).isPresent()) {
-            ResponseEntity.badRequest().build();
+    public ResponseEntity<Venta> delete(@PathVariable int id) {
+        if (ventaRepository.findById(id).isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
-        ventaRepository.delete(ventaRepository.findById(id).get());
-        return ResponseEntity.ok().build();
+        //ventaRepository.delete(ventaRepository.findById(id).get());
+        //ventaRepository.deleteById(id);
+        //return ResponseEntity.ok().build();
+
+        List<Producto> listaProductos = new ArrayList<Producto>();
+        productoRepository.findAll().forEach(listaProductos::add);
+
+        Venta venta = ventaRepository.findById(id).get();
+
+        for (Producto producto : listaProductos) {
+            if (producto.getId_producto() == venta.getProducto().getId_producto()) {
+                producto.setCantidad(producto.getCantidad() + venta.getCantidad());
+                ventaRepository.delete(venta);
+                return ResponseEntity.ok().build();
+            }
+        }
+        return ResponseEntity.badRequest().build();
     }
 }
+

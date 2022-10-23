@@ -43,7 +43,7 @@ public class VentaRest {
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Venta> create(@RequestBody Venta venta) {
 
-        if (venta.getCantidad() == 0) {
+        if (venta.getCantidad() <= 0) {
             return ResponseEntity.notFound().build();
         }
 

@@ -36,6 +36,9 @@ public class ProductoRest {
     @PostMapping()
     @CrossOrigin(origins = "*", maxAge = 3600)
     public ResponseEntity<Producto> create(@RequestBody Producto producto) {
+        if (producto.getCantidad() <= 0){
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
